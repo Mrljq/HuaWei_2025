@@ -61,25 +61,10 @@ def get_init_info():
     print("OK")
     sys.stdout.flush()
     
-    return T,M,N,V,G
+    return T,M,N,V,G,free_data_array
 
 
 
-def pre_trategy(free_data_array,m):
-    w_d = free_data_array[m:2*m]-free_data_array[0:m]
-    #============================计算累计峰值============================
-    cul_write = []
-    for i in range(len(w_d)):
-        max_ = 0
-        for i1 in w_d[i]:
-            if max_ + i1 > max_:
-                max_ += i1
-        cul_write.append(max_)
-    cul_write = np.array(cul_write, dtype=int)
-    total_sum = np.sum(cul_write)
-    percentages = cul_write / total_sum
-    print(percentages, file=sys.stderr) 
-    return percentages
 
 
 def timestamp_action():
