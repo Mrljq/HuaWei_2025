@@ -5,7 +5,7 @@
 import sys
 import numpy as np
 from obj import *
-
+import pdb
 
 FRE_PER_SLICING = 1800
 MAX_DISK_NUM = (10 + 1)
@@ -27,7 +27,7 @@ req_object_ids = [0] * MAX_REQUEST_NUM
 req_prev_ids = [0] * MAX_REQUEST_NUM
 req_is_dones = [False] * MAX_REQUEST_NUM
 
-objects = [Object() for _ in range(MAX_OBJECT_NUM)]
+# objects = [Object() for _ in range(MAX_OBJECT_NUM)]
 
 
 def get_init_info():
@@ -51,9 +51,9 @@ def get_init_info():
     free_del=free_data_array[0:M]
     free_write=free_data_array[M:2*M]
     free_read=free_data_array[2*M:3*M]
-    print(free_write-free_del, file=sys.stderr)    
+    # print(free_write-free_del, file=sys.stderr)    
 
-    pre_trategy(free_data_array,M)
+    # pre_trategy(free_data_array,M)
 
 
 
@@ -68,6 +68,9 @@ def get_init_info():
 
 
 def timestamp_action():
+     
     timestamp = input().split()[1]
+    # print(len(inp), file=sys.stderr)   
+
     print(f"TIMESTAMP {timestamp}")
     sys.stdout.flush()
