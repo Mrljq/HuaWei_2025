@@ -70,7 +70,7 @@ def get_init_info():
 def timestamp_action():
      
     timestamp = input().split()[1]
-    # print(len(inp), file=sys.stderr)   
+    print(timestamp, file=sys.stderr)   
 
     print(f"TIMESTAMP {timestamp}")
     sys.stdout.flush()

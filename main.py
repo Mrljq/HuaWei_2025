@@ -5,7 +5,7 @@ from delete_action import *
 
 from write_action import *
 
-# from read_action import*
+from read_action import*
 
 from obj import *
 
@@ -37,4 +37,4 @@ if __name__ == '__main__':
         timestamp_action()
         delete_action()
         write_action()
-        # read_action(N)
+        read_action(N)

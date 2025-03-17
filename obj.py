@@ -36,6 +36,7 @@ class Obj_State:
 class Disk_State:
     def __init__(self, storge_space, m):
         self.storge_space = np.full(storge_space, -1)
+        self.read_times = np.full(storge_space, -1)
         self.point_index = 0
         self.read_s = 64
         self.point_sequence = None
@@ -44,6 +45,9 @@ class Disk_State:
         self.discrete_space = {} #离散空间
         for i in range(m):
             self.discrete_space[i] = {}
+
+    def get_id(self,pos):
+        return self.storge_space[pos]
     
     def insert(self, obj_id, size, index):#插入时将占用的空间用对象id修改，-1代表没有占用
         self.storge_space[index:index+size] = obj_id
@@ -99,6 +103,11 @@ class Disk_State:
     def distance_head(self, obj_id):
         indices = np.where(self.storge_space == obj_id)[0]
         return indices
+    
+    #===============来一个读取就将密集度序列该对象前100个的密集度全部+1========================
+    def intensity_upgrade(self, obj_id):
+        index = np.where(self.storge_space == obj_id)[0]
+        
 
 #===============该类用于在插入时告诉插入位置=========================
 class Div_Disk_Space:
