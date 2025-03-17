@@ -3,9 +3,9 @@
 初始化
 '''
 import sys
-
+import numpy as np
 from obj import *
-
+import pdb
 
 FRE_PER_SLICING = 1800
 MAX_DISK_NUM = (10 + 1)
@@ -27,7 +27,7 @@ req_object_ids = [0] * MAX_REQUEST_NUM
 req_prev_ids = [0] * MAX_REQUEST_NUM
 req_is_dones = [False] * MAX_REQUEST_NUM
 
-objects = [Object() for _ in range(MAX_OBJECT_NUM)]
+# objects = [Object() for _ in range(MAX_OBJECT_NUM)]
 
 
 def get_init_info():
@@ -45,14 +45,15 @@ def get_init_info():
     # 预处理
     for item in range(1, M * 3 + 1):
         data=input()
-        free_data.append([data])
+        free_data.append(data.split())
+    free_data_array = np.array(free_data,dtype=int)
+    # np.save('C:/Users/lijia/Desktop/huawei_race/HuaWei_2025/interactor/my_array.npy', free_data_array)
+    free_del=free_data_array[0:M]
+    free_write=free_data_array[M:2*M]
+    free_read=free_data_array[2*M:3*M]
+    # print(free_write-free_del, file=sys.stderr)    
 
-    free_del=free_data[0:M]
-    free_write=free_data[M:2*M]
-    free_read=free_data[2*M:3*M]
-    # print(free_del,free_write,free_read, file=sys.stderr)    
-
-    pre_trategy(free_del,free_write,free_read)
+    # pre_trategy(free_data_array,M)
 
 
 
@@ -60,15 +61,16 @@ def get_init_info():
     print("OK")
     sys.stdout.flush()
     
-    return T,M,N,V,G
+    return T,M,N,V,G,free_data_array
 
 
 
-def pre_trategy(free_del,free_write,free_read):
-    None
 
 
 def timestamp_action():
+     
     timestamp = input().split()[1]
+    print(timestamp, file=sys.stderr)   
+
     print(f"TIMESTAMP {timestamp}")
     sys.stdout.flush()
