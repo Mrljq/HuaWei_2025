@@ -68,9 +68,9 @@ def get_init_info():
 
 
 def timestamp_action():
-     
+    print(input(), file=sys.stderr)   
     timestamp = input().split()[1]
-    print(timestamp, file=sys.stderr)   
+    
 
     print(f"TIMESTAMP {timestamp}")
     sys.stdout.flush()

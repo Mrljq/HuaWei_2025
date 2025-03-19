@@ -35,6 +35,10 @@ if __name__ == '__main__':
         disk_point[item] = 1
     for item in range(1, T + EXTRA_TIME + 1):
         timestamp_action()
+        
         delete_action()
+        
         write_action()
-        read_action(N)
+        
+        read_action()
+        

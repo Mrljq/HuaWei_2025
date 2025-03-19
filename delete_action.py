@@ -6,11 +6,17 @@ from init import *
 from global_ import *
 
 def delete_action():
-    print(0)
-    # n_delete = int(input())
-    # abortNum = 0
-    # for i in range(1, n_delete + 1):
-    #     _id[i] = int(input())
+    n_delete = int(input())
+    abortNum = 0
+    del_read = []
+    for i in range(1, n_delete + 1):
+        de_id = int(input())
+        delete_function(de_id)
+        if de_id in read_queue.keys():
+            for r_id in read_queue[de_id]:
+                del_read.append(r_id)
+            abortNum += len(read_queue[de_id])
+
     # for i in range(1, n_delete + 1):
     #     delete_id = _id[i]
     #     currentId = objects[delete_id].lastRequestPoint
@@ -19,7 +25,9 @@ def delete_action():
     #             abortNum += 1
     #         currentId = req_prev_ids[currentId]
 
-    # print(f"{abortNum}")
+    print(f"{abortNum}")
+    for d_id in del_read:
+        print(f"{d_id}")
     # for i in range(n_delete + 1):
     #     delete_id = _id[i]
     #     currentId = objects[delete_id].lastRequestPoint
@@ -45,4 +53,3 @@ def delete_function(obj_id):
     disks_id = obj_state.state_table[obj_id][3]
     for disk_id in disks_id:
         disks_state[id].del_obj(obj_id, size, tag)
-    #================下面需要结合
