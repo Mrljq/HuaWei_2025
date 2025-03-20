@@ -1,6 +1,7 @@
 '''
 定义一些类
 '''
+import sys
 import numpy as np
 REP_NUM = 3
 
@@ -43,7 +44,7 @@ class Disk_State:
         self.left_G = None
         self.already_storge = 0#已经存储的大小
         self.discrete_space = {} #离散空间
-        for i in range(m):
+        for i in range(1,1+m):
             self.discrete_space[i] = {}
 
     def get_id(self,pos):
@@ -114,18 +115,19 @@ class Div_Disk_Space:
     def __init__(self, storge_space, n ,free_data_array,m):
         self.dif_space_point_index = {}#用来存储所有硬盘划分后每一个类的指针位置，从指针位置开始插入
         self.percentage = []
+        self.m = m
         self.compute_percentage(free_data_array,m,storge_space)
         self.space_usage = np.zeros((n,m), dtype = int)
         for i in range(n):
             self.dif_space_point_index[i] = []#每一个硬盘self.dif_space_point_index[i]有一个list[(ori1,current1),(ori2,current2)]
             p = 0
             for i1 in self.percentage:
-                self.dif_space_point_index[i].append((p,p))
-                p += i1
+                self.dif_space_point_index[i].append([p,p])
+                p += int(i1)
         self.discrete_space = {}
         for i in range(n):
             self.discrete_space[i] = {}
-            for i1 in range(m):
+            for i1 in range(1,m+1):
                 self.discrete_space[i][i1] = []
 
     def compute_percentage(self,free_data_array,m,storge_space):
@@ -143,10 +145,10 @@ class Div_Disk_Space:
         self.percentage = storge_space *cul_write / total_sum
 
     def insert(self, obj_class, size, disk_id):
-        if self.dif_space_point_index[disk_id][obj_class][1] + size >=  self.dif_space_point_index[disk_id][obj_class+1][0]:
+        if self.dif_space_point_index[disk_id][int((obj_class-1)%self.m)][1] + size >=  self.dif_space_point_index[disk_id][int(obj_class%self.m)][0]:
             return False 
         else:
-            self.dif_space_point_index[disk_id][obj_class][1] += size
+            self.dif_space_point_index[disk_id][int((obj_class-1)%self.m)][1] += size
 
     def update_usage(self, n, m):
         for i in n:

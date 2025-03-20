@@ -37,7 +37,7 @@ if __name__ == '__main__':
         timestamp_action()
         
         delete_action()
-        
+        # print('1', file=sys.stderr)
         write_action()
         
         read_action()

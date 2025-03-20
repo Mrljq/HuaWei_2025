@@ -55,7 +55,7 @@ def insert_function(obj_id,size,tag):
                     break
         #顺插
         if flag:
-            index = np.argmin(div_disks_space.space_usage[:,tag])
+            index = np.argmin(div_disks_space.space_usage[:,tag-1])
             if disks_state[index].judge(size):
                 if div_disks_space.insert(tag,size,index):
                     disks_state[index].insert(obj_id,size,div_disks_space.dif_space_point_index[index][tag][1]-size)
