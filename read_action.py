@@ -25,8 +25,9 @@ def read_action(N):
             read_queue[objectId].appned(request_id)
         else:
             read_queue.update({objectId:[request_id]})
-    
+    update_read_times(disks_state, read_queue)
     all_results,has_finished=greedy_algorithm(disks_state,read_queue)
+    del_read_times(disks_state, has_finished)
     for result in all_results:
         action= ''.join(result) 
         print(action)

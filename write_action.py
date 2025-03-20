@@ -21,6 +21,7 @@ def do_object_write(object_unit, disk_unit, size, object_id,V):
 
 def write_action():
     n_write = int(input())
+    refresh_G(disks_state, G)
     for i in range(1, n_write + 1):
         write_input = input().split()
         write_id = int(write_input[0])
@@ -54,7 +55,7 @@ def insert_function(obj_id,size,tag):
                     break
         #顺插
         if flag:
-            index = np.argmin(div_disks_space.space_usage[:,tag])
+            index = np.argmin(div_disks_space.space_usage[:,tag-1])
             if disks_state[index].judge(size):
                 if div_disks_space.insert(tag,size,index):
                     disks_state[index].insert(obj_id,size,div_disks_space.dif_space_point_index[index][tag][1]-size)
@@ -63,3 +64,8 @@ def insert_function(obj_id,size,tag):
                     break
         storge_list.append(tem)
     return storge_list
+
+#=========================每一帧将disk的token复原=========================
+def refresh_G(disks, G):
+    for disk in disks:
+        disk.left_G = G
