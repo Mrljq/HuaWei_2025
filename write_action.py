@@ -28,41 +28,61 @@ def write_action():
         size = int(write_input[1])
         tag = int(write_input[2])
         storge_list = insert_function(write_id, size, tag)
+        # print(f'{write_id,size,tag,storge_list}' , file=sys.stderr) 
         print(f"{write_id}")
+        
         for j in range(1, REP_NUM + 1):
-            for s in storge_list:
-                print_next(f"{s}")
+            print_next(f"{int(storge_list[j-1][0])}")
+            for s1 in storge_list[j-1][1:]:
+                print_next(' ')
+                # print(f"{int(s[0])}", end="", file=sys.stderr)
+                print_next(f"{int(s1)}")
+                # print(f"{int(s[0])}", end="",file=sys.stderr)
             print()
+        print(f'{write_id,size,tag,storge_list}' , file=sys.stderr) 
     sys.stdout.flush()
 
 #插入函数
     #用一个循环首先judge每一个盘够不够0.9space，然后使用离散空间，然后看能不能顺存
 def insert_function(obj_id,size,tag):
     storge_list = []#返回给判题器的结果
+    al_disk = []
     for obj_copy in range(3):
         tem = []
         flag = True
         #首先优先找离散位置
+
         for index in range(len(disks_state)):
-            if size in disks_state[index].discrete_space[tag].keys():
-                if len(disks_state[index].discrete_space[tag][size]) >= 0:
-                    #只用给硬盘insert
-                    disks_state[index].insert(obj_id,size,disks_state[index].discrete_space[tag][size][0])                    
-                    tem.append(index)
-                    tem += list(range(disks_state[index].discrete_space[tag][size][0], disks_state[index].discrete_space[tag][size][0]+size))
-                    disks_state[index].discrete_space[tag][size].remove(disks_state[index].discrete_space[tag][size][0])
-                    flag = False
-                    break
+            if index not in al_disk:
+                if size in disks_state[index].discrete_space[tag].keys():
+                    if len(disks_state[index].discrete_space[tag][size]) >= 0:
+                        #只用给硬盘insert
+                        disks_state[index].insert(obj_id,size,disks_state[index].discrete_space[tag][size][0])                    
+                        tem.append(index+1)    
+                        al_disk.append(index)       
+                        tem += list(range(disks_state[index].discrete_space[tag][size][0]+1, disks_state[index].discrete_space[tag][size][0]+size+1))
+                        disks_state[index].discrete_space[tag][size].remove(disks_state[index].discrete_space[tag][size][0])
+                        flag = False
+                        break
         #顺插
         if flag:
-            index = np.argmin(div_disks_space.space_usage[:,tag-1])
-            if disks_state[index].judge(size):
-                if div_disks_space.insert(tag,size,index):
-                    disks_state[index].insert(obj_id,size,div_disks_space.dif_space_point_index[index][tag][1]-size)
-                    tem.append(index)
-                    tem += list(range(disks_state[index].discrete_space[tag][size][0], disks_state[index].discrete_space[tag][size][0]+size))
-                    break
+            # 使用 np.argsort 获取排序后的索引
+            top_3_list = np.argsort(div_disks_space.space_usage[:,tag-1])[:3]
+            for index in top_3_list:
+                if index not in al_disk:
+
+                    if disks_state[index].judge(size):
+
+                        if div_disks_space.insert(tag,size,index):
+                            disks_state[index].insert(obj_id,size,div_disks_space.dif_space_point_index[index][tag-1][1]-size)
+                            tem.append(index+1)
+                            al_disk.append(index)    
+                            tem += list(range(div_disks_space.dif_space_point_index[index][tag-1][1]-size+1, div_disks_space.dif_space_point_index[index][tag-1][1]+1))
+                            # print(f'{obj_id,obj_copy,tem}' , file=sys.stderr) 
+                            break
+                    # 
         storge_list.append(tem)
+        # print(f'{obj_copy, index,storge_list}' , file=sys.stderr) 
     return storge_list
 
 #=========================每一帧将disk的token复原=========================

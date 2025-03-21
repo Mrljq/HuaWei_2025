@@ -116,6 +116,7 @@ class Div_Disk_Space:
         self.dif_space_point_index = {}#用来存储所有硬盘划分后每一个类的指针位置，从指针位置开始插入
         self.percentage = []
         self.m = m
+        self.storge_space = storge_space
         self.compute_percentage(free_data_array,m,storge_space)
         self.space_usage = np.zeros((n,m), dtype = int)
         for i in range(n):
@@ -145,10 +146,15 @@ class Div_Disk_Space:
         self.percentage = storge_space *cul_write / total_sum
 
     def insert(self, obj_class, size, disk_id):
-        if self.dif_space_point_index[disk_id][int((obj_class-1)%self.m)][1] + size >=  self.dif_space_point_index[disk_id][int(obj_class%self.m)][0]:
+        if obj_class == self.m:
+            if int((self.dif_space_point_index[disk_id][int((obj_class-1)%self.m)][1] + size) % self.storge_space)  > self.dif_space_point_index[disk_id][int((obj_class-1)%self.m)][0]:
+                self.dif_space_point_index[disk_id][int((obj_class-1)%self.m)][1] += size
+                return True
+        elif self.dif_space_point_index[disk_id][int((obj_class-1)%self.m)][1] + size >=  self.dif_space_point_index[disk_id][int(obj_class%self.m)][0]:
             return False 
         else:
             self.dif_space_point_index[disk_id][int((obj_class-1)%self.m)][1] += size
+            return True
 
     def update_usage(self, n, m):
         for i in n:
