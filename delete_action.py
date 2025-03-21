@@ -52,4 +52,5 @@ def delete_function(obj_id):
     tag = obj_state.state_table[obj_id][1]
     disks_id = obj_state.state_table[obj_id][3]
     for disk_id in disks_id:
-        disks_state[id].del_obj(obj_id, size, tag)
+        disks_state[disk_id].del_obj(obj_id, size, tag)
+        obj_state.del_obj(obj_id)

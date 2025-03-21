@@ -34,10 +34,11 @@ if __name__ == '__main__':
     for item in range(1, N + 1):
         disk_point[item] = 1
     for item in range(1, T + EXTRA_TIME + 1):
+        
         timestamp_action()
         
         delete_action()
-        # print('1', file=sys.stderr)
+        
         write_action()
         
         read_action()

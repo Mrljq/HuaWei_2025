@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from global_ import *
 from heapq import heappush, heappop
 
-def read_action(N):
+def read_action():
     
     nRead = int(input())
     
@@ -136,53 +136,53 @@ def read_id(disk):
 
 
 
-def generate_valid_combinations(disks, read_queue):
-    """生成有效动作组合的生成器（内存友好）"""
+# def generate_valid_combinations(disks, read_queue):
+#     """生成有效动作组合的生成器（内存友好）"""
     
-    for disk in disks:
-        if disk.do_nothing==True:
-            print('#')  #stay
-            continue
-        all_results = []
-        for read_id,req_id in read_queue:
+#     for disk in disks:
+#         if disk.do_nothing==True:
+#             print('#')  #stay
+#             continue
+#         all_results = []
+#         for read_id,req_id in read_queue:
 
-            target_pos=disk.get_target_pos(read_id)
-            if   not target_pos: #disk.has_obj(item):
-                continue
-            current_pos = disk.point_index
+#             target_pos=disk.get_target_pos(read_id)
+#             if   not target_pos: #disk.has_obj(item):
+#                 continue
+#             current_pos = disk.point_index
 
-            if disk.left_G==disk.G:
-                valid_action=['jump']
-                new_disk=deepcopy(disk)
-                new_disk.left_G=0
-                has_readed=[]
-                results_score=0
-                all_results.append([valid_action,has_readed,results_score,new_disk])
+#             if disk.left_G==disk.G:
+#                 valid_action=['jump']
+#                 new_disk=deepcopy(disk)
+#                 new_disk.left_G=0
+#                 has_readed=[]
+#                 results_score=0
+#                 all_results.append([valid_action,has_readed,results_score,new_disk])
             
-            results=find_trace(disk,read_id,target_pos,read_queue)
-            if results!= None:
-                all_results.append(results)
+#             results=find_trace(disk,read_id,target_pos,read_queue)
+#             if results!= None:
+#                 all_results.append(results)
         
-        index=get_max_score(results)
-        action=results[index][0]
-        has_readed=results[index][1]
-        disk=results[index][3]
+#         index=get_max_score(results)
+#         action=results[index][0]
+#         has_readed=results[index][1]
+#         disk=results[index][3]
 
-        read_queue.delet(has_readed)#差个函数没实现
+#         read_queue.delet(has_readed)#差个函数没实现
         
 
         
 
         
             
-def get_max_score(results):
-    max_index=0
-    max_score=-100
-    for i ,result in  enumerate(results):
-        if max_score<result[2]:
-            max_score=result[2]
-            max_index=i
-    return max_index
+# def get_max_score(results):
+#     max_index=0
+#     max_score=-100
+#     for i ,result in  enumerate(results):
+#         if max_score<result[2]:
+#             max_score=result[2]
+#             max_index=i
+#     return max_index
 
 
     
@@ -192,47 +192,47 @@ def get_max_score(results):
 
 
 
-def action_is_value():
-    return True
+# def action_is_value():
+#     return True
 
-def get_read_score(disk):
-    base_score=0
-    if disk.point_sequence[0][2]>1:
-        #基础得分
-        return base_score
-    else:
-        #基础得分+真实得分
-        return base_score+get_reall_read_score(disk)
+# def get_read_score(disk):
+#     base_score=0
+#     if disk.point_sequence[0][2]>1:
+#         #基础得分
+#         return base_score
+#     else:
+#         #基础得分+真实得分
+#         return base_score+get_reall_read_score(disk)
     
-def get_pass_score():
-    return 0
-def get_jump_score():
-    return 0
-def get_stay_score():
-    return 0
+# def get_pass_score():
+#     return 0
+# def get_jump_score():
+#     return 0
+# def get_stay_score():
+#     return 0
 
-def get_reall_read_score(disk):
-    obj_read_star_id=0
-    obj_read_end_id=disk.id
-    obj_size=2
-    x=obj_read_end_id-obj_read_star_id
-    f_x=0
-    if x>=0 and x<=10:
-        f_x=1-0.005*x
-    elif x>10 and x<105:
-        f_x=1.05-0.01*x
-    g_x=(obj_size+1)*0.5
-    return f_x*g_x
-
-
+# def get_reall_read_score(disk):
+#     obj_read_star_id=0
+#     obj_read_end_id=disk.id
+#     obj_size=2
+#     x=obj_read_end_id-obj_read_star_id
+#     f_x=0
+#     if x>=0 and x<=10:
+#         f_x=1-0.005*x
+#     elif x>10 and x<105:
+#         f_x=1.05-0.01*x
+#     g_x=(obj_size+1)*0.5
+#     return f_x*g_x
 
 
 
 
 
 
-def calculate_heuristic(next_state,disks,read_queue):
-    None
+
+
+# def calculate_heuristic(next_state,disks,read_queue):
+#     None
     
-def read_action():
-    None
+# def read_action():
+#     None
