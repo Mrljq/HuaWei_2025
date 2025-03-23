@@ -75,3 +75,4 @@ def timestamp_action():
     print(f"TIMESTAMP {timestamp}")
     
     sys.stdout.flush()
+    return timestamp

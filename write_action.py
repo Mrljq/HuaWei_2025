@@ -19,7 +19,7 @@ def do_object_write(object_unit, disk_unit, size, object_id,V):
     assert (current_write_point == size)
 
 
-def write_action():
+def write_action(obj_state,disks_state,div_disks_space,m):
     n_write = int(input())
     refresh_G(disks_state, G)
     for i in range(1, n_write + 1):
@@ -27,8 +27,8 @@ def write_action():
         write_id = int(write_input[0])
         size = int(write_input[1])
         tag = int(write_input[2])
-        storge_list = insert_function(write_id, size, tag)
-        # print(f'{write_id,size,tag,storge_list}' , file=sys.stderr) 
+        storge_list = insert_function(write_id, size, tag,obj_state,disks_state,div_disks_space,m)
+        print(f'{write_id,size,tag,storge_list}' , file=sys.stderr) 
         print(f"{write_id}")
         
         for j in range(1, REP_NUM + 1):
@@ -39,7 +39,7 @@ def write_action():
                 print_next(f"{int(s1)}")
                 # print(f"{int(s[0])}", end="",file=sys.stderr)
             print()
-        print(f'{write_id,size,tag,storge_list}' , file=sys.stderr) 
+        # print(f'{write_id,size,tag,storge_list}' , file=sys.stderr) 
     #=============================插入时候更新Div_Disk_Space和Disk_State的状态
     div_disks_space.update_usage()
     for disk in disks_state:
@@ -92,11 +92,14 @@ def write_action():
 def refresh_G(disks, G):
     for disk in disks:
         disk.left_G = G
+        disk.do_nothing=False
 
 #==============================更新版本insert function==========================
-def insert_function(obj_id,size,tag):
+def insert_function(obj_id,size,tag,obj_state,disks_state,div_disks_space,m):
     storge_list = []#返回给判题器的结果
     already_disk = []
+    full_flag = False
+    copy_space = np.copy(div_disks_space.space_usage)#复制的space矩阵
     #==================3个副本==================
     for obj_copy in range(3):
         tem = []
@@ -106,23 +109,39 @@ def insert_function(obj_id,size,tag):
             if index not in already_disk:
                 if size in disks_state[index].discrete_space[tag-1].keys():
                     if len(disks_state[index].discrete_space[tag-1][size]) > 0:
-                        disks_state[index].insert(obj_id, size, disks_state[index].discrete_space[tag-1][size][0], tag-1, True)
                         already_disk.append(index)
                         dis_insert = True
                         tem.append(index+1)
                         tem += list(range(disks_state[index].discrete_space[tag-1][size][0]+1, disks_state[index].discrete_space[tag-1][size][0]+size+1))
+                        disks_state[index].insert(obj_id, size, disks_state[index].discrete_space[tag-1][size][0], tag-1, True)
+                        copy_space[index,:] = 0#每次插入把这一行全部变成0
                         break
         #===================进行顺插======================
         if dis_insert == False:
             # 使用 np.argsort 获取排序后的索引
-            top_3_list = np.argsort(div_disks_space.space_usage[:,tag-1])[:3]
-            for index in top_3_list:
-                if index not in already_disk:
-                    if div_disks_space.insert(tag-1, size, index):
+            top_list = np.argsort(copy_space[:,tag-1])
+            index = top_list[-1]#如果空间最大的都进不去就不用考虑了
+            print(f'{already_disk, index, copy_space}' , file=sys.stderr) 
+            if index not in already_disk:
+                if div_disks_space.insert(tag-1, size, index):
+                    tem.append(index+1)
+                    disks_state[index].insert(obj_id, size, div_disks_space.dif_space_point_index[index][tag-1][1]-size, tag-1, False)
+                    tem += list(range(div_disks_space.dif_space_point_index[index][tag-1][1]-size+1, div_disks_space.dif_space_point_index[index][tag-1][1]+1))
+                    already_disk.append(index)
+                    copy_space[index,:] = 0#每次插入把这一行全部变成0
+                #===========如果出现满的情况===============
+                else:
+                    #=======================找到最大值的横纵下标=================
+                    max_index = np.argmax(copy_space)
+                    max_index= np.unravel_index(max_index, div_disks_space.space_usage.shape)
+                    test_tag = max_index[1]
+                    index = max_index[0]
+                    if div_disks_space.insert(test_tag, size, index):
                         tem.append(index+1)
-                        tem += list(range(div_disks_space.dif_space_point_index[index][tag-1][1]-size+1, div_disks_space.dif_space_point_index[index][tag-1][1]+1))
+                        disks_state[index].insert(obj_id, size, div_disks_space.dif_space_point_index[index][test_tag][1]-size, test_tag, False)
+                        tem += list(range(div_disks_space.dif_space_point_index[index][test_tag][1]-size+1, div_disks_space.dif_space_point_index[index][test_tag][1]+1))
                         already_disk.append(index)
-                        break
+                        copy_space[index,:] = 0#每次插入把这一行全部变成0
         storge_list.append(tem)
     #=================首先插入obj_state中=========================
     obj_state.insert_obj(obj_id, tag, size, already_disk)

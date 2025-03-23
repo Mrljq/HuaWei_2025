@@ -5,7 +5,7 @@ from delete_action import *
 
 from write_action import *
 
-from read_action import*
+from read_actionght import*
 
 from obj import *
 
@@ -26,20 +26,23 @@ from global_ import *
 
 # print( , file=sys.stderr)
 if __name__ == '__main__':
+    # print('timestamp',file=sys.stderr)
     
-    
-
+    read_queue_ght=HashCollection()
 
  
     for item in range(1, N + 1):
         disk_point[item] = 1
     for item in range(1, T + EXTRA_TIME + 1):
+        timestamp=timestamp_action()
+        # print(timestamp,file=sys.stderr)
         
-        timestamp_action()
+        delete_action(timestamp)
         
-        delete_action()
+        write_action(obj_state,disks_state,div_disks_space,M)
         
-        write_action()
-        
-        read_action()
-        
+        read_queue_ght,disks_state,obj_state=read_action(timestamp,read_queue_ght,disks_state,obj_state)
+        print(timestamp,file=sys.stderr)
+        # if int(timestamp)>3:
+        #     break
+      

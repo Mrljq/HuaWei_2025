@@ -5,26 +5,20 @@ from init import *
 # from init import _id ,objects,req_is_dones,req_prev_ids
 from global_ import *
 
-def delete_action():
+def delete_action(time):
     n_delete = int(input())
     abortNum = 0
     del_read = []
     for i in range(1, n_delete + 1):
         de_id = int(input())
+        #==================测试==============
+        # if int(time) > 2310:
+        print(f'{time}: {de_id}, {read_queue}',file=sys.stderr)
         delete_function(de_id)
         if de_id in read_queue.keys():
             for r_id in read_queue[de_id]:
                 del_read.append(r_id)
             abortNum += len(read_queue[de_id])
-
-    # for i in range(1, n_delete + 1):
-    #     delete_id = _id[i]
-    #     currentId = objects[delete_id].lastRequestPoint
-    #     while currentId != 0:
-    #         if not req_is_dones[currentId]:
-    #             abortNum += 1
-    #         currentId = req_prev_ids[currentId]
-
     print(f"{abortNum}")
     for d_id in del_read:
         print(f"{d_id}")
@@ -48,9 +42,9 @@ def do_object_delete(object_unit, disk_unit, size):
 
 def delete_function(obj_id):
     # 计算数组中1的个数
-    size = obj_state.state_table[obj_id][2]
-    tag = obj_state.state_table[obj_id][1]
-    disks_id = obj_state.state_table[obj_id][3]
+    size = obj_state.state_table[obj_id][1]
+    tag = obj_state.state_table[obj_id][0]
+    disks_id = obj_state.state_table[obj_id][2]
     for disk_id in disks_id:
-        disks_state[disk_id].del_obj(obj_id, size, tag)
+        disks_state[disk_id].del_obj(obj_id, size, tag-1)
         obj_state.del_obj(obj_id)
