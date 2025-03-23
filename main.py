@@ -39,7 +39,7 @@ if __name__ == '__main__':
         
         delete_action(timestamp)
         
-        write_action(obj_state,disks_state,div_disks_space,M)
+        write_action(obj_state,disks_state,div_disks_space)
         
         read_queue_ght,disks_state,obj_state=read_action(timestamp,read_queue_ght,disks_state,obj_state)
         print(timestamp,file=sys.stderr)

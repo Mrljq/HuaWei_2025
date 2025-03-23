@@ -19,7 +19,7 @@ def do_object_write(object_unit, disk_unit, size, object_id,V):
     assert (current_write_point == size)
 
 
-def write_action(obj_state,disks_state,div_disks_space,m):
+def write_action(obj_state,disks_state,div_disks_space):
     n_write = int(input())
     refresh_G(disks_state, G)
     for i in range(1, n_write + 1):
@@ -27,8 +27,8 @@ def write_action(obj_state,disks_state,div_disks_space,m):
         write_id = int(write_input[0])
         size = int(write_input[1])
         tag = int(write_input[2])
-        storge_list = insert_function(write_id, size, tag,obj_state,disks_state,div_disks_space,m)
-        print(f'{write_id,size,tag,storge_list}' , file=sys.stderr) 
+        storge_list = insert_function(write_id, size, tag,obj_state,disks_state,div_disks_space)
+        # print(f'{write_id,size,tag,storge_list}' , file=sys.stderr) 
         print(f"{write_id}")
         
         for j in range(1, REP_NUM + 1):
@@ -95,7 +95,7 @@ def refresh_G(disks, G):
         disk.do_nothing=False
 
 #==============================更新版本insert function==========================
-def insert_function(obj_id,size,tag,obj_state,disks_state,div_disks_space,m):
+def insert_function(obj_id,size,tag,obj_state,disks_state,div_disks_space):
     storge_list = []#返回给判题器的结果
     already_disk = []
     full_flag = False
@@ -121,7 +121,6 @@ def insert_function(obj_id,size,tag,obj_state,disks_state,div_disks_space,m):
             # 使用 np.argsort 获取排序后的索引
             top_list = np.argsort(copy_space[:,tag-1])
             index = top_list[-1]#如果空间最大的都进不去就不用考虑了
-            print(f'{already_disk, index, copy_space}' , file=sys.stderr) 
             if index not in already_disk:
                 if div_disks_space.insert(tag-1, size, index):
                     tem.append(index+1)
