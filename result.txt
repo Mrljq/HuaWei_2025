@@ -1,1 +1,0 @@
-{"error_code":"n_abort_error","score":"0.0000","timestamp":"284","action":"delete","role":"player","message":"Integer parameter [name=n_abort] equals to 0, violates the range [1, 1]."}

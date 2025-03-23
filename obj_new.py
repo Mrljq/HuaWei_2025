@@ -27,7 +27,6 @@ class Disk_State:
         self.storge_space = np.full(storge_space, 0)#0代表没有，id就是存储的对象id
         self.storge_space_block=np.full(storge_space, -1)
         self.point_index = 0 #代表磁针位置，如果与storge_space对应请-1
-        self.discrete_space = {} #存储当前硬盘的离散空间
         self.point_sequence = None
         self.left_G = g
         self.id=disk_id
@@ -39,32 +38,21 @@ class Disk_State:
         self.request_num=np.full(storge_space, -1)  #后续需要完成请求之后删除
         self.processed = []
         self.move_cost=1
-        for i in range(m):
-            self.discrete_space[i] = {}
     
 
-    def insert(self, obj_id, size, index, tag, dis_insert=False):#插入时将占用的空间用对象id修改，0代表没有占用,insert_type:0代表正常插入，1代表离散插入
+    def insert(self, obj_id, size, index):#插入时将占用的空间用对象id修改，0代表没有占用,insert_type:0代表正常插入，1代表离散插入
         self.storge_space[index:index+size] = obj_id
         # print('asasasasasasasa',self.id,self.storge_space[index:index+size],file=sys.stderr)
         self.storge_space_block[index:index+size]=np.arange(1, size + 1)
-        #==============如果插入的是离散空间需要删除离散空间=============
-        if dis_insert:
-            self.discrete_space[tag][size].remove(index)
 
-    
-    def del_obj(self, obj_id, size, tag):
+    def del_obj(self, obj_id):
         # 使用numpy.where找到特定元素的所有下标
         indices = np.where(self.storge_space == obj_id)[0] #这里返回的是一个array
         # 将数组中的所有1替换为-1
         self.storge_space[self.storge_space == obj_id] = 0
         
         self.storge_space_block[indices]= 0
-        
-        if size in self.discrete_space[tag].keys():
-            self.discrete_space[tag][size].append(indices[0])#这里只传入首个下标
-        else:
-            self.discrete_space[tag][size] = []
-            self.discrete_space[tag][size].append(indices[0])
+        return indices[0]
 
     def move(self, class_move, move_target=0):#0代表跳跃，1代表pass，2代表read,对于1和2 move_target设置为0
         if class_move == 0:
@@ -117,16 +105,26 @@ class Disk_State:
 #===============该类用于在插入时告诉插入位置（该类的index和tag都是从0开始的）=========================
 class Div_Disk_Space:
     def __init__(self, storge_space, n ,free_data_array,m):
-        self.dif_space_point_index = {}#用来存储所有硬盘划分后每一个类的指针位置，从指针位置开始插入
+        self.current_point = np.zeros((n,m), dtype =int)#用于代表顺插头位置的矩阵
+        self.start_point = np.zeros((n,m), dtype =int)#用于代表开始头位置的矩阵
+        self.end_point = np.zeros((n,m), dtype =int)#用于代表顺插末位置的矩阵
+        self.space_usage = np.zeros((n,m), dtype =int)#将末矩阵与头矩阵相减即可得到
         self.percentage = []
         self.init(free_data_array,m,storge_space)
-        self.space_usage = np.zeros((n,m), dtype = float)
+        self.discrete_space = {}#应该是4维的：disk，tag, size，indexs
+        self.discrete_space_size = np.zeros((n, m, 5))
         for i in range(n):
-            self.dif_space_point_index[i] = []#每一个硬盘self.dif_space_point_index[i]有一个list[(ori1,current1,end),(ori2,current2,end)]
+            self.discrete_space[i] = {}
             p = 0
-            for i1 in self.percentage:
-                self.dif_space_point_index[i].append([p,p,p+int(i1)])
-                p += int(i1)
+            for i1 in range(len(self.percentage)):
+                self.start_point[:,i1] = p
+                self.current_point[:,i1] = p
+                self.end_point[:,i1] = p+int(self.percentage[i1])
+                p += int(self.percentage[i1])
+            for i2 in range(m):#每一个硬盘一开始没有离散空间
+                self.discrete_space[i][i2] = {}
+                for size in range(1,6):
+                    self.discrete_space[i][i2][size] = []
         #===================这里新加入一个指示当预存类满时的可存储空间==========
         self.tag_full_space = []
         self.update_usage()
@@ -146,19 +144,25 @@ class Div_Disk_Space:
         self.percentage = storge_space *cul_write / total_sum
 
     def insert(self, obj_class, size, disk_id):#这里插入类时候需要把，tag-1
-        # print('self.dif_space_point_index[disk_id][obj_class]',self.dif_space_point_index[disk_id][obj_class],file=sys.stderr)
-        if self.dif_space_point_index[disk_id][obj_class][1]+size < self.dif_space_point_index[disk_id][obj_class][2]:
-            self.dif_space_point_index[disk_id][obj_class][1] += size
-            # print(self.dif_space_point_index[disk_id][obj_class][1],size,file=sys.stderr)
+        if self.space_usage[disk_id][obj_class] >= size:
+            self.current_point[disk_id][obj_class] += size
             return True
         else:
             return False
 
+    def insert_discrete(self, disk_id, obj_size, tag, index, discrete_size):
+        self.discrete_space[disk_id][tag][discrete_size].remove(index)
+        self.discrete_space_size[disk_id][tag][discrete_size-1] -= 1
+        #非等值插入，离散空间大小一定更大
+        if obj_size != discrete_size:
+            self.discrete_space[disk_id][tag][discrete_size-obj_size].append(index+obj_size)#加入到剩余位置
+            self.discrete_space_size[disk_id][tag][discrete_size-obj_size-1] += 1
+
     def update_usage(self):
-        for disk_id in range(self.space_usage.shape[0]):
-            for tag_id in range(self.space_usage.shape[1]):
-                self.space_usage[disk_id][tag_id] = (self.dif_space_point_index[disk_id][tag_id][2] - self.dif_space_point_index[disk_id][tag_id][1])
-    # def update_usage(self):
-    #     for disk_id in range(self.space_usage.shape[0]):
-    #         for tag_id in range(self.space_usage.shape[1]):
-    #             self.space_usage[disk_id][tag_id] = (self.dif_space_point_index[disk_id][tag_id][1] - self.dif_space_point_index[disk_id][tag_id][0]) / (self.dif_space_point_index[disk_id][tag_id][2] - self.dif_space_point_index[disk_id][tag_id][0])
+        self.space_usage = self.end_point - self.current_point
+
+    def del_obj(self, disk_id, size, tag, obj_index):
+        self.discrete_space[disk_id][tag][size]
+        self.discrete_space[disk_id][tag][size].append(obj_index)#这里只传入首个下标
+        self.discrete_space_size[disk_id][tag][size-1] += 1
+
